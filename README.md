@@ -13,15 +13,20 @@ JSON output — while shipping as a single static binary.
 
 ## Install
 
+The binary is installed as `bwgo` so it can sit next to the official `bw` on your `PATH`:
+
 ```sh
-go install github.com/lassejlv/bw-go/cmd/bw@latest
+T=$(mktemp -d) && GOBIN=$T go install github.com/lassejlv/bw-go/cmd/bw@latest && mv $T/bw "$(go env GOPATH)/bin/bwgo"
 ```
 
-or build from source:
+Make sure `$(go env GOPATH)/bin` (usually `~/go/bin`) is on your `PATH`. Run the same command again
+to update.
+
+Or build from source:
 
 ```sh
 git clone https://github.com/lassejlv/bw-go && cd bw-go
-go build -o bw ./cmd/bw
+go build -o bwgo ./cmd/bw
 ```
 
 Requires Go 1.27+.
@@ -29,16 +34,16 @@ Requires Go 1.27+.
 ## Usage
 
 The commands mirror the official CLI, so its [documentation](https://bitwarden.com/help/cli/)
-applies:
+applies — just run `bwgo` instead of `bw`:
 
 ```sh
-bw config server https://vault.example.com   # optional, defaults to bitwarden.com
-bw login
-export BW_SESSION="..."                       # printed by login/unlock
-bw list items --search github
-bw get password github.com
-bw generate -lusn --length 24
-bw serve --port 8087
+bwgo config server https://vault.example.com   # optional, defaults to bitwarden.com
+bwgo login
+export BW_SESSION="..."                         # printed by login/unlock
+bwgo list items --search github
+bwgo get password github.com
+bwgo generate -lusn --length 24
+bwgo serve --port 8087
 ```
 
 State is stored in `data-go.json` inside the official CLI's data directory (or
