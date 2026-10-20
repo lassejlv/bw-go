@@ -184,7 +184,7 @@ func TestCreateOrgCollection(t *testing.T) {
 	}
 
 	mustFail(t, Create(env.a, "org-collection", json.RawMessage(`{"name":"x"}`), CreateOptions{}),
-		"An organization id is required, either via the `--organizationid` option (or `organizationId` query parameter when using `bw serve`), or the request's `organizationId` property.")
+		"An organization id is required, either via the `--organizationid` option (or `organizationId` query parameter when using `bwgo serve`), or the request's `organizationId` property.")
 	mustFail(t, Create(env.a, "org-collection", json.RawMessage(`{"name":"x","organizationId":"abc"}`), CreateOptions{}), "`abc` is not a GUID.")
 	mustFail(t, Create(env.a, "org-collection", json.RawMessage(`{"name":"x","organizationId":"`+testOrgID+`"}`),
 		CreateOptions{OrganizationID: "bbbbbbbb-0000-0000-0000-000000000002"}),

@@ -211,13 +211,13 @@ const generateHelp = "\n  Notes:\n\n" +
 	"    Minimum `length` is 5.\n\n" +
 	"    Minimum `words` is 3.\n\n" +
 	"  Examples:\n\n" +
-	"    bw generate\n" +
-	"    bw generate -u -l --length 18\n" +
-	"    bw generate -ulns --length 25\n" +
-	"    bw generate -ul\n" +
-	"    bw generate -p --separator _\n" +
-	"    bw generate -p --words 5 --separator space\n" +
-	"    bw generate -p --words 5 --separator empty\n"
+	"    bwgo generate\n" +
+	"    bwgo generate -u -l --length 18\n" +
+	"    bwgo generate -ulns --length 25\n" +
+	"    bwgo generate -ul\n" +
+	"    bwgo generate -p --separator _\n" +
+	"    bwgo generate -p --words 5 --separator space\n" +
+	"    bwgo generate -p --words 5 --separator empty\n"
 
 func newGenerateCommand(a *app.App) *cobra.Command {
 	var o GenerateOptions

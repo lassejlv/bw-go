@@ -116,25 +116,28 @@ func SaveResultToFile(data []byte, output, defaultFileName string) *Response {
 	return Success(NewMessageNull("Saved " + p).SetRaw(p))
 }
 
+// stdinReader is shared by all prompts so buffered input is not lost between consecutive prompts
+// when stdin is piped.
+var stdinReader = bufio.NewReader(os.Stdin)
+
+func promptLabel(message string) string {
+	return Err.Accent("?") + " " + Err.Bold(message) + " "
+}
+
 // PromptInput asks for a line of text on stderr.
 func PromptInput(message string) (string, error) {
-	fmt.Fprint(os.Stderr, "? "+message+" ")
-	r := bufio.NewReader(os.Stdin)
-	line, err := r.ReadString('\n')
-	if err != nil && err != io.EOF {
-		return "", err
-	}
-	return strings.TrimRight(line, "\r\n"), nil
+	fmt.Fprint(os.Stderr, promptLabel(message))
+	return PromptInputRaw()
 }
 
 // PromptPassword asks for a hidden value on stderr.
 func PromptPassword(message string) (string, error) {
-	fmt.Fprint(os.Stderr, "? "+message+" ")
+	fmt.Fprint(os.Stderr, promptLabel(message))
 	if !isTTY(os.Stdin) {
 		return PromptInputRaw()
 	}
 	b, err := term.ReadPassword(int(os.Stdin.Fd()))
-	fmt.Fprintln(os.Stderr, "[hidden]")
+	fmt.Fprintln(os.Stderr, Err.Dim("[hidden]"))
 	if err != nil {
 		return "", err
 	}
@@ -143,8 +146,7 @@ func PromptPassword(message string) (string, error) {
 
 // PromptInputRaw reads a line from stdin without printing anything.
 func PromptInputRaw() (string, error) {
-	r := bufio.NewReader(os.Stdin)
-	line, err := r.ReadString('\n')
+	line, err := stdinReader.ReadString('\n')
 	if err != nil && err != io.EOF {
 		return "", err
 	}
@@ -153,12 +155,13 @@ func PromptInputRaw() (string, error) {
 
 // PromptSelect shows a numbered list and returns the chosen index.
 func PromptSelect(message string, choices []string) (int, error) {
-	fmt.Fprintln(os.Stderr, "? "+message)
+	fmt.Fprintln(os.Stderr, Err.Accent("?")+" "+Err.Bold(message))
 	for i, c := range choices {
-		fmt.Fprintf(os.Stderr, "  %d) %s\n", i+1, c)
+		fmt.Fprintf(os.Stderr, "  %s %s\n", Err.Dim(fmt.Sprintf("%d)", i+1)), c)
 	}
 	for {
-		ans, err := PromptInput("Answer:")
+		fmt.Fprint(os.Stderr, "  "+Err.Dim(fmt.Sprintf("Choose 1-%d:", len(choices)))+" ")
+		ans, err := PromptInputRaw()
 		if err != nil {
 			return -1, err
 		}
@@ -169,6 +172,11 @@ func PromptSelect(message string, choices []string) (int, error) {
 		for i, c := range choices {
 			if strings.EqualFold(strings.TrimSpace(ans), c) {
 				return i, nil
+			}
+		}
+		if ans == "" && err == nil {
+			if _, peekErr := stdinReader.Peek(1); peekErr == io.EOF {
+				return -1, io.EOF
 			}
 		}
 	}

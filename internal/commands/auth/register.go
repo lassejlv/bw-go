@@ -19,22 +19,22 @@ const loginHelp = `
 
   Examples:
 
-    bw login
-    bw login john@example.com myPassword321 --raw
-    bw login john@example.com myPassword321 --method 1 --code 249213
-    bw login --sso
+    bwgo login
+    bwgo login john@example.com myPassword321 --raw
+    bwgo login john@example.com myPassword321 --method 1 --code 249213
+    bwgo login --sso
 `
 
 const logoutHelp = `
   Examples:
 
-    bw logout
+    bwgo logout
 `
 
 const lockHelp = `
   Examples:
 
-    bw lock
+    bwgo lock
 `
 
 const unlockHelp = `
@@ -46,17 +46,17 @@ const unlockHelp = `
 
   Examples:
 
-    bw unlock
-    bw unlock myPassword321
-    bw unlock myPassword321 --raw
+    bwgo unlock
+    bwgo unlock myPassword321
+    bwgo unlock myPassword321 --raw
 `
 
 const syncHelp = `
   Examples:
 
-    bw sync
-    bw sync -f
-    bw sync --last
+    bwgo sync
+    bwgo sync -f
+    bwgo sync --last
 `
 
 const configHelp = `
@@ -66,10 +66,10 @@ const configHelp = `
 
   Examples:
 
-    bw config server
-    bw config server https://bw.company.com
-    bw config server bitwarden.com
-    bw config server --api http://localhost:4000 --identity http://localhost:33656
+    bwgo config server
+    bwgo config server https://bw.company.com
+    bwgo config server bitwarden.com
+    bwgo config server --api http://localhost:4000 --identity http://localhost:33656
 `
 
 const statusHelp = `

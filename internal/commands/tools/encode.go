@@ -33,7 +33,7 @@ func EncodeInput(input []byte) *cli.Response {
 const encodeHelp = "\n  Notes:\n\n" +
 	"    Use to create `encodedJson` for `create` and `edit` commands.\n\n" +
 	"  Examples:\n\n" +
-	"    echo '{\"name\":\"My Folder\"}' | bw encode\n"
+	"    echo '{\"name\":\"My Folder\"}' | bwgo encode\n"
 
 func newEncodeCommand(_ *app.App) *cobra.Command {
 	cmd := &cobra.Command{

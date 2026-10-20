@@ -70,7 +70,11 @@ func Process(r *Response, exitImmediately bool) {
 			if envTrue("BW_RESPONSE") {
 				WriteLn(ToJSON(r), true, false)
 			} else {
-				WriteLn(RedBright(r.MessageText()), true, true)
+				msg := r.MessageText()
+				if Err.Enabled() {
+					msg = "✗ " + msg
+				}
+				WriteLn(RedBright(msg), true, true)
 			}
 		}
 		code := 1
@@ -125,8 +129,10 @@ func messageText(m *MessageResponse) *string {
 	if m.Title != nil {
 		if m.NoColor {
 			out = *m.Title
+		} else if Out.Enabled() {
+			out = GreenBright("✓ " + *m.Title)
 		} else {
-			out = GreenBright(*m.Title)
+			out = *m.Title
 		}
 	}
 	if m.Message != nil {

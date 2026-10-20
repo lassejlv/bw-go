@@ -7,13 +7,13 @@ and KeePass (kdbx) pieces ported from the Rust SDK at https://github.com/bitward
 
 | Path | Purpose |
 | --- | --- |
-| `cmd/bw` | entry point; blank-imports every command package |
+| `cmd/bwgo` | entry point (`bwgo` binary); blank-imports every command package |
 | `internal/crypto` | SymmetricKey, EncString, EncArrayBuffer (EncryptBytes/DecryptBytes), KDF, HKDF, RSA |
 | `internal/state` | JSON state file (`data-go.json` in the Node CLI's app data dir), `Store.Load` / `Store.Update` |
 | `internal/api` | HTTP client: `Send/Get/Post/Put/Delete`, identity token, token refresh, `ErrorResponse`, environment URLs |
 | `internal/app` | `App` service container, BW_SESSION handling (`SetUserKey`, `UserKey`, `Lock`, `Logout`), auth guards |
 | `internal/cli` | `Response` model, `Process` (output rules of BaseProgram.processResponse), prompts, file helpers |
-| `internal/commands/root` | cobra root, global flags, `root.Register(order, fn)`, `root.Examples(cmd, text)` |
+| `internal/commands/root` | cobra root, global flags, help renderer (`help.go`), `root.Register(order, fn)`, `root.Examples(cmd, text)` |
 | `internal/commands/*` | one package per command group, each registering itself from `init()` |
 | `internal/vault` | vault domain: server models, decryption/encryption, keys, CLI response/export JSON shapes |
 | `internal/importer` | all `bw import` formats (port of libs/importer + SDK kdbx); see internal/importer/README.md |

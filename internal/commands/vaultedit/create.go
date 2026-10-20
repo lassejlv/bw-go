@@ -211,7 +211,7 @@ func resolveOrganizationID(optOrgID string, req *orgCollectionRequest) (string, 
 	}
 	if isNullOrWhitespace(orgID) {
 		return "", cli.BadRequest("An organization id is required, either via the `--organizationid` option " +
-			"(or `organizationId` query parameter when using `bw serve`), " +
+			"(or `organizationId` query parameter when using `bwgo serve`), " +
 			"or the request's `organizationId` property.")
 	}
 	if !isGUID(orgID) {

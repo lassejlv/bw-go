@@ -1,4 +1,4 @@
-// Package root builds the `bw` cobra command tree. Command packages register themselves from
+// Package root builds the `bwgo` cobra command tree. Command packages register themselves from
 // init() via Register, and main blank-imports them.
 package root
 
@@ -25,7 +25,7 @@ type entry struct {
 
 var registrars []entry
 
-// Register queues a registrar. order controls the position in `bw --help` (lower first).
+// Register queues a registrar. order controls the position in `bwgo --help` (lower first).
 func Register(order int, fn Registrar) { registrars = append(registrars, entry{order, fn}) }
 
 // Global flag values.
@@ -53,28 +53,28 @@ func ApplyGlobalFlags() {
 }
 
 const rootExamples = `
-  Tip: Managing and retrieving secrets for dev environments is easier with Bitwarden Secrets Manager. Learn more under https://bitwarden.com/products/secrets-manager/
-
   Examples:
 
-    bw login
-    bw lock
-    bw unlock myPassword321
-    bw list --help
-    bw list items --search google
-    bw get item 99ee88d2-6046-4ea7-92c2-acac464b1412
-    bw get password google.com
-    echo '{"name":"My Folder"}' | bw encode
-    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K
-    bw edit folder c7c7b60b-9c61-40f2-8ccd-36c49595ed72 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==
-    bw delete item 99ee88d2-6046-4ea7-92c2-acac464b1412
-    bw archive item 99ee88d2-6046-4ea7-92c2-acac464b1412
-    bw generate -lusn --length 18
-    bw config server https://bitwarden.example.com
-    bw send -f ./file.ext
-    bw send "text to send"
-    echo "text to send" | bw send
-    bw receive https://vault.bitwarden.com/#/send/rg3iuoS_Akm2gqy6ADRHmg/Ht7dYjsqjmgqUM3rjzZDSQ
+    bwgo login
+    bwgo lock
+    bwgo unlock myPassword321
+    bwgo list --help
+    bwgo list items --search google
+    bwgo get item 99ee88d2-6046-4ea7-92c2-acac464b1412
+    bwgo get password google.com
+    echo '{"name":"My Folder"}' | bwgo encode
+    bwgo create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K
+    bwgo edit folder c7c7b60b-9c61-40f2-8ccd-36c49595ed72 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==
+    bwgo delete item 99ee88d2-6046-4ea7-92c2-acac464b1412
+    bwgo archive item 99ee88d2-6046-4ea7-92c2-acac464b1412
+    bwgo generate -lusn --length 18
+    bwgo config server https://bitwarden.example.com
+    bwgo send -f ./file.ext
+    bwgo send "text to send"
+    echo "text to send" | bwgo send
+    bwgo receive https://vault.bitwarden.com/#/send/rg3iuoS_Akm2gqy6ADRHmg/Ht7dYjsqjmgqUM3rjzZDSQ
+
+  Tip: Managing and retrieving secrets for dev environments is easier with Bitwarden Secrets Manager. Learn more under https://bitwarden.com/products/secrets-manager/
 `
 
 // New builds the full command tree.
@@ -84,8 +84,8 @@ func New(a *app.App) *cobra.Command {
 	// Run the root PersistentPreRun (global flags) even when a subcommand defines its own.
 	cobra.EnableTraverseRunHooks = true
 	root := &cobra.Command{
-		Use:           "bw",
-		Short:         "Bitwarden CLI",
+		Use:           "bwgo",
+		Short:         "Bitwarden CLI (unofficial Go port)",
 		Version:       version.Version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -99,7 +99,7 @@ func New(a *app.App) *cobra.Command {
 		Run:              func(cmd *cobra.Command, args []string) { _ = cmd.Help() },
 	}
 	root.SetVersionTemplate("{{.Version}}\n")
-	root.Flags().BoolP("version", "v", false, "output the version number")
+	root.Flags().BoolP("version", "v", false, "Show the version number.")
 	pf := root.PersistentFlags()
 	pf.BoolVar(&flagPretty, "pretty", false, "Format output. JSON is tabbed with two spaces.")
 	pf.BoolVar(&flagRaw, "raw", false, "Return raw output instead of a descriptive message.")
@@ -109,19 +109,16 @@ func New(a *app.App) *cobra.Command {
 	pf.BoolVar(&flagNoInteraction, "nointeraction", false, "Do not prompt for interactive user input.")
 	pf.StringVar(&flagSession, "session", "", "Pass session key instead of reading from env.")
 	root.CompletionOptions.DisableDefaultCmd = true
+	root.SuggestionsMinimumDistance = 2
 
-	defaultHelp := root.HelpFunc()
-	root.SetHelpFunc(func(cmd *cobra.Command, args []string) {
-		defaultHelp(cmd, args)
-		if cmd == root {
-			cli.WriteLn(rootExamples, true, false)
-		}
-	})
+	root.SetHelpFunc(renderHelp)
+	Examples(root, rootExamples)
 
 	sort.SliceStable(registrars, func(i, j int) bool { return registrars[i].order < registrars[j].order })
 	for _, r := range registrars {
 		r.fn(root, a)
 	}
+	keepFlagOrder(root)
 	return root
 }
 
@@ -129,26 +126,22 @@ func New(a *app.App) *cobra.Command {
 func Execute(a *app.App, args []string) int {
 	root := New(a)
 	root.SetArgs(args)
-	if err := root.Execute(); err != nil {
+	cmd, err := root.ExecuteC()
+	if err != nil {
 		msg := err.Error()
 		if strings.HasPrefix(msg, "unknown command") {
 			cli.WriteLn(cli.RedBright("Invalid command: "+strings.Join(args, " ")), false, true)
-			cli.WriteLn("See --help for a list of available commands.", true, true)
+			if len(args) > 0 {
+				if hint := unknownCommandHint(root, args[0]); hint != "" {
+					cli.WriteLn(hint, false, true)
+				}
+			}
+			cli.WriteLn(cli.Err.Dim("See `"+root.Name()+" --help` for a list of available commands."), true, true)
 		} else {
-			cli.WriteLn(cli.RedBright("error: "+msg), true, true)
+			cli.WriteLn(cli.RedBright("error: "+msg), false, true)
+			cli.WriteLn(cli.Err.Dim("See `"+cmd.CommandPath()+" --help` for usage."), true, true)
 		}
 		return 1
 	}
 	return cli.ExitCode
-}
-
-// Examples formats a help epilogue ("Notes"/"Examples" blocks) appended to a command's help.
-func Examples(cmd *cobra.Command, text string) {
-	def := cmd.HelpFunc()
-	cmd.SetHelpFunc(func(c *cobra.Command, args []string) {
-		def(c, args)
-		if c == cmd {
-			cli.WriteLn(text, true, false)
-		}
-	})
 }

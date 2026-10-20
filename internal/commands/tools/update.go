@@ -119,8 +119,8 @@ const updateHelp = "\n  Notes:\n\n" +
 	"    Returns the URL to download the newest version of this CLI tool.\n\n" +
 	"    Use the `--raw` option to return only the download URL for the update.\n\n" +
 	"  Examples:\n\n" +
-	"    bw update\n" +
-	"    bw update --raw\n"
+	"    bwgo update\n" +
+	"    bwgo update --raw\n"
 
 func newUpdateCommand(a *app.App) *cobra.Command {
 	cmd := &cobra.Command{

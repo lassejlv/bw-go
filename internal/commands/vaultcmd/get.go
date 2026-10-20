@@ -453,7 +453,7 @@ func getTemplate(a *app.App, id string) *cli.Response {
 		}
 	case "send.file", "send.text":
 		// Upstream wraps the bad-request Response itself as the template (and succeeds).
-		return cli.Success(cli.NewTemplate(cli.BadRequest("Invalid template object. Use `bw send template " + id + "` instead.")))
+		return cli.Success(cli.NewTemplate(cli.BadRequest("Invalid template object. Use `bwgo send template " + id + "` instead.")))
 	}
 	for _, n := range vault.TemplateNames {
 		if n == name {

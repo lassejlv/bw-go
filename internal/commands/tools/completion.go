@@ -27,7 +27,7 @@ func Completion(rootCmd *cobra.Command, shell string) *cli.Response {
 	}
 	content := ""
 	if shell == "zsh" {
-		content = ZshCompletion("bw", rootCmd)
+		content = ZshCompletion("bwgo", rootCmd)
 	}
 	return cli.Success(cli.NewMessageNull(content))
 }
@@ -135,7 +135,7 @@ func renderCommandBlock(name string, cmd *cobra.Command) string {
 const completionHelp = "\n  Notes:\n\n" +
 	"    Valid shells are `zsh`.\n\n" +
 	"  Examples:\n\n" +
-	"    bw completion --shell zsh\n"
+	"    bwgo completion --shell zsh\n"
 
 func newCompletionCommand() *cobra.Command {
 	var shell string

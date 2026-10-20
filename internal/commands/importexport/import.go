@@ -238,10 +238,10 @@ func importSubmit(a *app.App, v *vault.Vault, result *model.ImportResult, orgID 
 const importHelp = `
  Examples:
 
-    bw import --formats
-    bw import bitwardencsv ./from/source.csv
-    bw import keepass2xml keepass_backup.xml
-    bw import --organizationid cf14adc3-aca5-4573-890a-f6fa231436d9 keepass2xml keepass_backup.xml
+    bwgo import --formats
+    bwgo import bitwardencsv ./from/source.csv
+    bwgo import keepass2xml keepass_backup.xml
+    bwgo import --organizationid cf14adc3-aca5-4573-890a-f6fa231436d9 keepass2xml keepass_backup.xml
 `
 
 func init() {

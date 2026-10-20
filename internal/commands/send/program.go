@@ -189,12 +189,12 @@ func getCommand(a *app.App) *cobra.Command {
 
   Examples:
 
-    bw send get searchText
-    bw send get id
-    bw send get searchText --text
-    bw send get searchText --file
-    bw send get searchText --file --output ../Photos/photo.jpg
-    bw send get searchText --file --raw
+    bwgo send get searchText
+    bwgo send get id
+    bwgo send get searchText --text
+    bwgo send get searchText --file
+    bwgo send get searchText --file --output ../Photos/photo.jpg
+    bwgo send get searchText --file --raw
 `)
 	return cmd
 }

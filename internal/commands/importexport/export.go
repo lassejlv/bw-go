@@ -174,13 +174,13 @@ const exportHelp = `
 
   Examples:
 
-    bw export
-    bw --raw export
-    bw export myPassword321
-    bw export myPassword321 --format json
-    bw export --output ./exp/bw.csv
-    bw export myPassword321 --output bw.json --format json
-    bw export myPassword321 --organizationid 7063feab-4b10-472e-b64c-785e2b870b92
+    bwgo export
+    bwgo --raw export
+    bwgo export myPassword321
+    bwgo export myPassword321 --format json
+    bwgo export --output ./exp/bw.csv
+    bwgo export myPassword321 --output bw.json --format json
+    bwgo export myPassword321 --organizationid 7063feab-4b10-472e-b64c-785e2b870b92
 `
 
 // exportPasswordNoValue is the NoOptDefVal of `--password` given without a value. The flag value

@@ -13,10 +13,10 @@ JSON output — while shipping as a single static binary.
 
 ## Install
 
-The binary is installed as `bwgo` so it can sit next to the official `bw` on your `PATH`:
+The binary is called `bwgo`, so it can sit next to the official `bw` on your `PATH`:
 
 ```sh
-T=$(mktemp -d) && GOBIN=$T go install github.com/lassejlv/bw-go/cmd/bw@latest && mv $T/bw "$(go env GOPATH)/bin/bwgo"
+go install github.com/lassejlv/bw-go/cmd/bwgo@latest
 ```
 
 Make sure `$(go env GOPATH)/bin` (usually `~/go/bin`) is on your `PATH`. Run the same command again
@@ -26,7 +26,7 @@ Or build from source:
 
 ```sh
 git clone https://github.com/lassejlv/bw-go && cd bw-go
-go build -o bwgo ./cmd/bw
+go build ./cmd/bwgo
 ```
 
 Requires Go 1.27+.

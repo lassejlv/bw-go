@@ -193,7 +193,7 @@ func TestUpdateFromReleases(t *testing.T) {
 }
 
 func TestCompletion(t *testing.T) {
-	rootCmd := &cobra.Command{Use: "bw"}
+	rootCmd := &cobra.Command{Use: "bwgo"}
 	rootCmd.PersistentFlags().Bool("pretty", false, "Format output.")
 	rootCmd.Flags().BoolP("version", "v", false, "output the version number")
 	sub := &cobra.Command{Use: "list <object>", Short: "List an array of objects.", Run: func(*cobra.Command, []string) {}}
@@ -212,9 +212,9 @@ func TestCompletion(t *testing.T) {
 	}
 	r := Completion(rootCmd, "zsh")
 	got := *r.Data.(*cli.MessageResponse).Title
-	want := `#compdef _bw bw
+	want := `#compdef _bwgo bwgo
 
-function _bw {
+function _bwgo {
   local -a commands
 
   _arguments -C \
@@ -236,22 +236,22 @@ function _bw {
 
   case "$words[1]" in
     list)
-      _bw_list
+      _bwgo_list
       ;;
     send)
-      _bw_send
+      _bwgo_send
       ;;
   esac
 }
 
-function _bw_list {
+function _bwgo_list {
   _arguments -C \
     '--search[Perform a search on the listed objects.]' \
     '(-h --help)'{-h,--help}'[output usage information]' \
     "*::arg:->args"
 }
 
-function _bw_send {
+function _bwgo_send {
   local -a commands
 
   case $state in
@@ -265,12 +265,12 @@ function _bw_send {
 
   case "$words[1]" in
     get)
-      _bw_send_get
+      _bwgo_send_get
       ;;
   esac
 }
 
-function _bw_send_get {
+function _bwgo_send_get {
 ` + "  " + `
 }`
 	if got != want {

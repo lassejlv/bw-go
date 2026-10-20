@@ -13,9 +13,9 @@ const serveHelp = "\n  Notes:\n\n" +
 	"    Use hostname `all` for no hostname binding.\n" +
 	"    Default port is `8087`.\n\n" +
 	"  Examples:\n\n" +
-	"    bw serve\n" +
-	"    bw serve --port 8080\n" +
-	"    bw serve --hostname bwapi.mydomain.com --port 80\n"
+	"    bwgo serve\n" +
+	"    bwgo serve --port 8080\n" +
+	"    bwgo serve --hostname bwapi.mydomain.com --port 80\n"
 
 func init() {
 	root.Register(400, func(r *cobra.Command, a *app.App) { r.AddCommand(newServeCommand(a)) })

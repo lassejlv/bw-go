@@ -91,9 +91,9 @@ func createCommand(a *app.App) *cobra.Command {
 	f.StringVar(&opts.ItemID, "itemid", "", "Attachment's item id.")
 	f.StringVar(&opts.OrganizationID, "organizationid", "", "Organization id for an organization object.")
 	root.Examples(cmd, "\n  Examples:\n\n"+
-		"    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K\n"+
-		"    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create folder\n"+
-		"    bw create attachment --file ./myfile.csv --itemid 16b15b89-65b3-4639-ad2a-95052a6d8f66\n")
+		"    bwgo create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K\n"+
+		"    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bwgo create folder\n"+
+		"    bwgo create attachment --file ./myfile.csv --itemid 16b15b89-65b3-4639-ad2a-95052a6d8f66\n")
 	return cmd
 }
 
@@ -118,9 +118,9 @@ func editCommand(a *app.App) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&opts.OrganizationID, "organizationid", "", "Organization id for an organization object.")
 	root.Examples(cmd, "\n  Examples:\n\n"+
-		"    bw edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==\n"+
-		"    echo 'eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==' | bw edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02\n"+
-		"    bw edit item-collections 78307355-fd25-416b-88b8-b33fd0e88c82 WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==\n")
+		"    bwgo edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==\n"+
+		"    echo 'eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==' | bwgo edit folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02\n"+
+		"    bwgo edit item-collections 78307355-fd25-416b-88b8-b33fd0e88c82 WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==\n")
 	return cmd
 }
 
@@ -147,10 +147,10 @@ func deleteCommand(a *app.App) *cobra.Command {
 	f.StringVar(&opts.OrganizationID, "organizationid", "", "Organization id for an organization object.")
 	f.BoolVarP(&opts.Permanent, "permanent", "p", false, "Permanently deletes the item instead of soft-deleting it (item only).")
 	root.Examples(cmd, "\n  Examples:\n\n"+
-		"    bw delete item 7063feab-4b10-472e-b64c-785e2b870b92\n"+
-		"    bw delete item 89c21cd2-fab0-4f69-8c6e-ab8a0168f69a --permanent\n"+
-		"    bw delete folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02\n"+
-		"    bw delete attachment b857igwl1dzrs2 --itemid 310d5ffd-e9a2-4451-af87-ea054dce0f78\n")
+		"    bwgo delete item 7063feab-4b10-472e-b64c-785e2b870b92\n"+
+		"    bwgo delete item 89c21cd2-fab0-4f69-8c6e-ab8a0168f69a --permanent\n"+
+		"    bwgo delete folder 5cdfbd80-d99f-409b-915b-f4c5d0241b02\n"+
+		"    bwgo delete attachment b857igwl1dzrs2 --itemid 310d5ffd-e9a2-4451-af87-ea054dce0f78\n")
 	return cmd
 }
 
@@ -172,7 +172,7 @@ func restoreCommand(a *app.App) *cobra.Command {
 		},
 	}
 	root.Examples(cmd, "\n  Examples:\n\n"+
-		"    bw restore item 7063feab-4b10-472e-b64c-785e2b870b92\n")
+		"    bwgo restore item 7063feab-4b10-472e-b64c-785e2b870b92\n")
 	return cmd
 }
 
@@ -194,7 +194,7 @@ func archiveCommand(a *app.App) *cobra.Command {
 		},
 	}
 	root.Examples(cmd, "\n  Examples:\n\n"+
-		"    bw archive item 7063feab-4b10-472e-b64c-785e2b870b92\n")
+		"    bwgo archive item 7063feab-4b10-472e-b64c-785e2b870b92\n")
 	return cmd
 }
 
@@ -217,12 +217,12 @@ func shareCommand(a *app.App, name string, deprecated bool) *cobra.Command {
 		},
 	}
 	help := "\n  Examples:\n\n" +
-		"    bw " + name + " 4af958ce-96a7-45d9-beed-1e70fabaa27a " +
+		"    bwgo " + name + " 4af958ce-96a7-45d9-beed-1e70fabaa27a " +
 		"6d82949b-b44d-468a-adae-3f3bacb0ea32 WyI5NzQwNTNkMC0zYjMzLTRiOTgtODg2ZS1mZWNmNWM4ZGJhOTYiXQ==\n" +
-		"    echo '[\"974053d0-3b33-4b98-886e-fecf5c8dba96\"]' | bw encode | " +
-		"bw " + name + " 4af958ce-96a7-45d9-beed-1e70fabaa27a 6d82949b-b44d-468a-adae-3f3bacb0ea32\n"
+		"    echo '[\"974053d0-3b33-4b98-886e-fecf5c8dba96\"]' | bwgo encode | " +
+		"bwgo " + name + " 4af958ce-96a7-45d9-beed-1e70fabaa27a 6d82949b-b44d-468a-adae-3f3bacb0ea32\n"
 	if deprecated {
-		help += "\n--DEPRECATED See \"bw move\" for the current implementation--\n"
+		help += "\n--DEPRECATED See \"bwgo move\" for the current implementation--\n"
 	}
 	root.Examples(cmd, help)
 	return cmd
@@ -248,6 +248,6 @@ func confirmCommand(a *app.App) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&opts.OrganizationID, "organizationid", "", "Organization id for an organization object.")
 	root.Examples(cmd, "\n  Examples:\n\n"+
-		"    bw confirm org-member 7063feab-4b10-472e-b64c-785e2b870b92 --organizationid 310d5ffd-e9a2-4451-af87-ea054dce0f78\n")
+		"    bwgo confirm org-member 7063feab-4b10-472e-b64c-785e2b870b92 --organizationid 310d5ffd-e9a2-4451-af87-ea054dce0f78\n")
 	return cmd
 }

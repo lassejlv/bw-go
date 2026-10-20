@@ -56,17 +56,17 @@ const listHelp = `
 
   Examples:
 
-    bw list items
-    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2
-    bw list items --search google --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2
-    bw list items --url https://google.com
-    bw list items --folderid null
-    bw list items --organizationid notnull
-    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull
-    bw list items --trash
-    bw list items --archived
-    bw list folders --search email
-    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2
+    bwgo list items
+    bwgo list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2
+    bwgo list items --search google --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2
+    bwgo list items --url https://google.com
+    bwgo list items --folderid null
+    bwgo list items --organizationid notnull
+    bwgo list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull
+    bwgo list items --trash
+    bwgo list items --archived
+    bwgo list folders --search email
+    bwgo list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2
 `
 
 const getHelp = `
@@ -75,15 +75,15 @@ const getHelp = `
 
   Examples:
 
-    bw get item 99ee88d2-6046-4ea7-92c2-acac464b1412
-    bw get password https://google.com
-    bw get totp google.com
-    bw get notes google.com
-    bw get exposed yahoo.com
-    bw get attachment b857igwl1dzrs2 --itemid 99ee88d2-6046-4ea7-92c2-acac464b1412 --output ./photo.jpg
-    bw get attachment photo.jpg --itemid 99ee88d2-6046-4ea7-92c2-acac464b1412 --raw
-    bw get folder email
-    bw get template folder
+    bwgo get item 99ee88d2-6046-4ea7-92c2-acac464b1412
+    bwgo get password https://google.com
+    bwgo get totp google.com
+    bwgo get notes google.com
+    bwgo get exposed yahoo.com
+    bwgo get attachment b857igwl1dzrs2 --itemid 99ee88d2-6046-4ea7-92c2-acac464b1412 --output ./photo.jpg
+    bwgo get attachment photo.jpg --itemid 99ee88d2-6046-4ea7-92c2-acac464b1412 --raw
+    bwgo get folder email
+    bwgo get template folder
 `
 
 func listCommand(a *app.App) *cobra.Command {

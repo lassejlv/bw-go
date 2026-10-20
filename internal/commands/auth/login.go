@@ -314,7 +314,7 @@ func loginSuccessResponse(a *app.App, o LoginOptions, interactive bool) *cli.Res
 	}
 	if (o.Sso != nil || o.APIKey) && interactive && !usesKeyConnector {
 		return cli.Success(cli.NewMessage("You are logged in!",
-			"\nTo unlock your vault, use the `unlock` command. ex:\n$ bw unlock"))
+			"\nTo unlock your vault, use the `unlock` command. ex:\n$ bwgo unlock"))
 	}
 	return cli.Success(sessionMessage("You are logged in!"))
 }
@@ -327,7 +327,7 @@ func sessionMessage(title string) *cli.MessageResponse {
 		"$ export BW_SESSION=\"" + session + "\"\n" +
 		"> $env:BW_SESSION=\"" + session + "\"\n\n" +
 		"You can also pass the session key to any command with the `--session` option. ex:\n" +
-		"$ bw list items --session " + session
+		"$ bwgo list items --session " + session
 	return cli.NewMessage(title, msg).SetRaw(session)
 }
 

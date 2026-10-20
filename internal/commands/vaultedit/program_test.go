@@ -11,7 +11,7 @@ import (
 	"github.com/lassejlv/bw-go/internal/commands/root"
 )
 
-// run executes the bw command tree and returns stdout, stderr and the exit code.
+// run executes the bwgo command tree and returns stdout, stderr and the exit code.
 func run(t *testing.T, env *testEnv, args ...string) (string, string, int) {
 	t.Helper()
 	oldOut, oldErr := os.Stdout, os.Stderr
@@ -44,11 +44,11 @@ func TestProgram(t *testing.T) {
 	stdout, _, _ := run(t, env, "create", "--help")
 	for _, want := range []string{
 		"Create an object in the vault.",
-		"object       Valid objects are: item, attachment, folder, org-collection",
-		"encodedJson  Encoded json of the object to create. Can also be piped into stdin.",
-		"--file string",
-		"\n  Examples:\n\n    bw create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K\n    echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bw create folder\n" +
-			"    bw create attachment --file ./myfile.csv --itemid 16b15b89-65b3-4639-ad2a-95052a6d8f66\n",
+		"object        Valid objects are: item, attachment, folder, org-collection",
+		"encodedJson   Encoded json of the object to create. Can also be piped into stdin.",
+		"--file <file>",
+		"\n  Examples\n    $ bwgo create folder eyJuYW1lIjoiTXkgRm9sZGVyIn0K\n    $ echo 'eyJuYW1lIjoiTXkgRm9sZGVyIn0K' | bwgo create folder\n" +
+			"    $ bwgo create attachment --file ./myfile.csv --itemid 16b15b89-65b3-4639-ad2a-95052a6d8f66\n",
 	} {
 		if !strings.Contains(stdout, want) {
 			t.Errorf("create help lacks %q:\n%s", want, stdout)
@@ -56,11 +56,11 @@ func TestProgram(t *testing.T) {
 	}
 	stdout, _, _ = run(t, env, "share", "--help")
 	if !strings.Contains(stdout, "--DEPRECATED-- Move an item to an organization.") ||
-		!strings.Contains(stdout, "\n--DEPRECATED See \"bw move\" for the current implementation--\n") {
+		!strings.Contains(stdout, "--DEPRECATED See \"bwgo move\" for the current implementation--\n") {
 		t.Errorf("share help:\n%s", stdout)
 	}
 	stdout, _, _ = run(t, env, "--help")
-	order := []string{"\n  create ", "\n  edit ", "\n  delete ", "\n  restore ", "\n  move ", "\n  confirm ", "\n  share ", "\n  archive "}
+	order := []string{"\n    create ", "\n    edit ", "\n    delete ", "\n    restore ", "\n    archive ", "\n    move ", "\n    confirm ", "\n    share "}
 	last := -1
 	for _, c := range order {
 		i := strings.Index(stdout, c)

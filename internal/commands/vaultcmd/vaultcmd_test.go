@@ -646,7 +646,7 @@ func TestGetTemplate(t *testing.T) {
 	expectErr(t, Get(a, "template", "item.sshkey", GetOptions{}), "Unknown template object.")
 	r := Get(a, "template", "send.text", GetOptions{})
 	if got := cli.MarshalJSON(r.Data, false); !r.Success || got !=
-		"{\"object\":\"template\",\"template\":{\"success\":false,\"message\":\"Invalid template object. Use `bw send template send.text` instead.\"}}" {
+		"{\"object\":\"template\",\"template\":{\"success\":false,\"message\":\"Invalid template object. Use `bwgo send template send.text` instead.\"}}" {
 		t.Errorf("template send.text: %s", got)
 	}
 	old := NewItemTypesEnabled
