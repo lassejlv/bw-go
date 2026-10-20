@@ -1,0 +1,6 @@
+/bw
+/bw.exe
+/dist/
+.claude/
+*.test
+*.out

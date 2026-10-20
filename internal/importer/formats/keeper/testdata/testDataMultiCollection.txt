@@ -1,0 +1,4 @@
+
+"Foo\Baz\Bar","Bar 2","john.doe2@example.com","34567890abcdef12","https://another.example.com/","","","Account ID","23456","TFC:Keeper","otpauth://totp/Amazon:me@company.com?secret=JBSWY3DPEHPK3PXP&issuer=Amazon&algorithm=SHA1&digits=6&period=30"
+"Foo\Baz","Bar 2","john.doe2@example.com","34567890abcdef12","https://another.example.com/","","","Account ID","23456","TFC:Keeper","otpauth://totp/Amazon:me@company.com?secret=JBSWY3DPEHPK3PXP&issuer=Amazon&algorithm=SHA1&digits=6&period=30"
+"Foo","Bar 2","john.doe2@example.com","34567890abcdef12","https://another.example.com/","","","Account ID","23456","TFC:Keeper","otpauth://totp/Amazon:me@company.com?secret=JBSWY3DPEHPK3PXP&issuer=Amazon&algorithm=SHA1&digits=6&period=30"

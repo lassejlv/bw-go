@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImportFile xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Folders />
+  <Secrets>
+    <Secret>
+      <SecretName>AC units at Operations</SecretName>
+      <FolderPath />
+      <SiteId>-1</SiteId>
+      <TotpKey />
+      <TotpBackupCodes />
+      <SecretItems>
+        <SecretItem>
+          <FieldName>Username</FieldName>
+          <Slug>username</Slug>
+          <Value>myUser</Value>
+        </SecretItem>
+        <SecretItem>
+          <FieldName>Password</FieldName>
+          <Slug>password</Slug>
+          <Value>SoftBatchCookies123!</Value>
+        </SecretItem>
+        <SecretItem>
+          <FieldName>EmptyField</FieldName>
+          <Slug>emptyfield</Slug>
+          <Value />
+        </SecretItem>
+      </SecretItems>
+      <SecretDependencies />
+      <SecretDependencyGroups />
+      <Permissions />
+    </Secret>
+  </Secrets>
+  <Groups />
+  <Sites />
+  <SiteConnectors />
+</ImportFile>

@@ -1,0 +1,2 @@
+!group_id,!group_name,title,username,password,URL,custom_field,another_field,id
+1,General,Entry With Custom Fields,user1,pass1,https://example.com,custom value,another value,entry1

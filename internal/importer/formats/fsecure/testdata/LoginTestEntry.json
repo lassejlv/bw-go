@@ -1,0 +1,23 @@
+{
+  "data": {
+    "1c3a2e31dcaa8459edd70a9d895ce298": {
+      "color": "#00A34D",
+      "createdDate": 0,
+      "creditCvv": "",
+      "creditExpiry": "",
+      "creditNumber": "",
+      "favorite": 1666440874,
+      "modifiedDate": 0,
+      "notes": "some note for example.com",
+      "password": "somePassword",
+      "passwordList": [],
+      "passwordModifiedDate": 0,
+      "rev": 1,
+      "service": "example.com",
+      "style": "website",
+      "type": 1,
+      "url": "https://www.example.com",
+      "username": "jdoe"
+    }
+  }
+}

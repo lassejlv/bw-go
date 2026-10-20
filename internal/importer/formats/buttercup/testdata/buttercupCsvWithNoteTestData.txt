@@ -1,0 +1,2 @@
+!group_id,!group_name,title,username,password,URL,note,id
+1,General,Entry With Note,user1,pass1,https://example.com,This is a note,entry1

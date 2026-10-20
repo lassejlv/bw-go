@@ -1,0 +1,11 @@
+{
+  "encrypted": false,
+  "passwords": [
+    {
+      "website": "https://bitwarden.com/",
+      "username": "testUser",
+      "password": "testPassword",
+      "message": "my notes"
+    }
+  ]
+}

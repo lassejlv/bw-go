@@ -1,0 +1,23 @@
+{
+  "data": {
+    "156498a46a3254f16035cbbbd09c2b8f": {
+      "color": "#00baff",
+      "createdDate": 1666438977,
+      "creditCvv": "123",
+      "creditExpiry": "22.10.2026",
+      "creditNumber": "4242424242424242",
+      "favorite": 0,
+      "modifiedDate": 1666438977,
+      "notes": "some notes to my card",
+      "password": "1234",
+      "passwordList": [],
+      "passwordModifiedDate": 1666438977,
+      "rev": 1,
+      "service": "My credit card",
+      "style": "creditcard",
+      "type": 2,
+      "url": "mybank",
+      "username": "John Doe"
+    }
+  }
+}

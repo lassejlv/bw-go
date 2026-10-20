@@ -1,0 +1,3 @@
+!group_id,!group_name,title,username,password,URL,id
+1,Work/Projects,Project Entry,projectuser,projectpass,https://project.com,entry1
+2,Personal/Finance,Finance Entry,financeuser,financepass,https://finance.com,entry2

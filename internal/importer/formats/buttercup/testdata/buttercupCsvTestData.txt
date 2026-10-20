@@ -1,0 +1,3 @@
+!group_id,!group_name,title,username,password,URL,id
+1,General,Test Entry,testuser,testpass123,https://example.com,entry1
+1,General,Another Entry,anotheruser,anotherpass,https://another.com,entry2

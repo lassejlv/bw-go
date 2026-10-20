@@ -1,0 +1,38 @@
+// Package yoti ports libs/importer/src/importers/yoti-csv-importer.ts (yoticsv).
+package yoti
+
+import (
+	"github.com/lassejlv/bw-go/internal/importer"
+	"github.com/lassejlv/bw-go/internal/importer/model"
+)
+
+func init() { importer.Register("yoticsv", New) }
+
+// Importer is YotiCsvImporter.
+type Importer struct{ importer.Base }
+
+// New constructs the importer.
+func New(opts importer.Options) importer.Importer { return &Importer{Base: importer.NewBase(opts)} }
+
+// Parse implements importer.Importer.
+func (i *Importer) Parse(data string) (*model.ImportResult, error) {
+	result := model.NewImportResult()
+	results := i.ParseCsv(data, nil)
+	if results == nil {
+		result.Success = false
+		return result, nil
+	}
+
+	for _, value := range results {
+		cipher := i.InitLoginCipher()
+		cipher.Name = i.GetValueOrDefault(value.Get("Name"), "--")
+		cipher.Login.Username = i.GetValueOrDefault(value.Get("User name"))
+		cipher.Login.Password = i.GetValueOrDefault(value.Get("Password"))
+		cipher.Login.Uris = i.MakeUriArray(value.Get("URL"))
+		i.CleanupCipher(cipher)
+		result.Ciphers = append(result.Ciphers, cipher)
+	}
+
+	result.Success = true
+	return result, nil
+}

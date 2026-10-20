@@ -1,0 +1,1 @@
+Secret Name,Username,URL,Password,Notes,Date Created,Expires,Folder,TOTP Key,TOTP Backup Codes
