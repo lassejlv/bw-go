@@ -7,6 +7,7 @@ import (
 
 	"github.com/lassejlv/bw-go/internal/app"
 	"github.com/lassejlv/bw-go/internal/cli"
+	"github.com/lassejlv/bw-go/internal/events"
 	"github.com/lassejlv/bw-go/internal/vault"
 )
 
@@ -133,7 +134,7 @@ func listCiphers(a *app.App, opts ListOptions) *cli.Response {
 
 	ciphers = v.FilterRestrictedCiphers(ciphers)
 
-	// eventCollectionService.collectMany(Cipher_ClientViewed, ...) is telemetry and is not ported.
+	events.CollectMany(a, v, events.CipherClientViewed, ciphers, true)
 
 	out := make([]*vault.CipherResponse, 0, len(ciphers))
 	for _, c := range ciphers {

@@ -28,7 +28,7 @@ func getAttachment(a *app.App, id string, opts GetOptions) *cli.Response {
 	}
 
 	itemID := strings.ToLower(opts.ItemID)
-	if r, _ := getCipher(v, itemID, nil); !r.Success {
+	if r, _ := getCipher(a, v, itemID, nil); !r.Success {
 		return r
 	}
 

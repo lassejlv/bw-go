@@ -7,7 +7,10 @@ import (
 	"github.com/lassejlv/bw-go/internal/api"
 	"github.com/lassejlv/bw-go/internal/app"
 	bwauth "github.com/lassejlv/bw-go/internal/auth"
+	"github.com/lassejlv/bw-go/internal/biometrics"
 	"github.com/lassejlv/bw-go/internal/cli"
+	"github.com/lassejlv/bw-go/internal/events"
+	"github.com/lassejlv/bw-go/internal/migrations"
 	"github.com/lassejlv/bw-go/internal/state"
 	"github.com/lassejlv/bw-go/internal/syncer"
 )
@@ -15,6 +18,9 @@ import (
 // Logout implements LogoutCommand.run (with the service container's logout callback): the active
 // account and its data are removed and the session key is cleared.
 func Logout(a *app.App) *cli.Response {
+	// Like the service container's logout, upload any pending events before the account is
+	// cleared (it only happens while the vault is unlocked).
+	events.Upload(a)
 	if acct := a.ActiveAccount(); acct != nil {
 		_ = bwauth.SetAccountKeys(a.Store, acct.UserID, nil)
 	}
@@ -46,7 +52,15 @@ func Unlock(a *app.App, password string, o UnlockOptions) *cli.Response {
 	if acct == nil {
 		return cli.Error("No active account found")
 	}
+	userID := acct.UserID
+
+	passwordWasProvided := password != "" || o.PasswordEnv != "" || o.PasswordFile != ""
 	conversionRequired := bwauth.ConvertAccountRequired(acct)
+
+	if !passwordWasProvided && !conversionRequired && os.Getenv("BW_NOINTERACTION") != "true" &&
+		tryUnlockWithDesktop(a, userID) {
+		return cli.Success(sessionMessage("Your vault is now unlocked!"))
+	}
 
 	password, r := cli.GetPassword(password, o.PasswordFile, o.PasswordEnv, "")
 	if r != nil {
@@ -69,7 +83,52 @@ func Unlock(a *app.App, password string, o UnlockOptions) *cli.Response {
 			return r
 		}
 	}
+
+	if err := newMigrator(a).RunMigrations(userID, &password); err != nil {
+		return cli.Error(err)
+	}
+
 	return cli.Success(sessionMessage("Your vault is now unlocked!"))
+}
+
+// tryUnlockWithDesktop is UnlockCommand.tryUnlockWithDesktop: it asks the Bitwarden desktop app
+// to unlock the user with biometrics and hands the user key over. Any failure falls back to the
+// master password.
+func tryUnlockWithDesktop(a *app.App, userID string) bool {
+	svc := biometrics.NewService(a)
+	defer svc.Close()
+	// ServiceContainer.init verifies the desktop connection when the feature flag is on.
+	svc.ConnectToDesktop()
+
+	if svc.GetBiometricsStatusForUser(userID) != biometrics.Available {
+		return false
+	}
+	if os.Getenv("BW_QUIET") != "true" && os.Getenv("BW_RESPONSE") != "true" {
+		cli.WriteLn("Unlocking with biometrics...", false, true)
+	}
+	userKey := svc.UnlockWithBiometricsForUser(userID)
+	if userKey == nil {
+		return false
+	}
+	// UnlockService.unlockWithDecryptedUserKey under a new session key. The account
+	// cryptographic state was verified against the key by UnlockWithBiometricsForUser.
+	previous, hadPrevious := os.LookupEnv("BW_SESSION")
+	app.NewSession()
+	if err := a.SetUserKey(userKey); err != nil {
+		biometrics.Logger()("CLI biometric unlock failed; falling back to master password " + err.Error())
+		if hadPrevious {
+			os.Setenv("BW_SESSION", previous)
+		} else {
+			os.Unsetenv("BW_SESSION")
+		}
+		return false
+	}
+	return true
+}
+
+// newMigrator creates the encrypted migrator the CLI runs after login and unlock.
+func newMigrator(a *app.App) *migrations.Migrator {
+	return migrations.New(migrations.Deps{App: a, ClientType: migrations.ClientCli})
 }
 
 // convertToKeyConnector implements ConvertToKeyConnectorCommand.run.

@@ -147,6 +147,7 @@ type kdfResponse struct {
 }
 
 type userDecryption struct {
+	UserKeyID            *string `json:"userKeyId"`
 	MasterPasswordUnlock *struct {
 		Salt                      string       `json:"salt"`
 		Kdf                       *kdfResponse `json:"kdf"`
@@ -281,6 +282,15 @@ func (r *Response) Apply(acct *state.Account) {
 		acct.HasMasterPassword = true
 	} else if p.Key != "" {
 		acct.EncUserKey = p.Key
+	}
+	// The stored user key id mirrors the server's; an absent one is cleared.
+	if r.userDecryption != nil {
+		acct.UserKeyID = ""
+		if id := r.userDecryption.UserKeyID; id != nil {
+			if v, ok := auth.ParseKeyID(*id); ok {
+				acct.UserKeyID = v
+			}
+		}
 	}
 	if isPresent(p.AccountKeys) {
 		var k struct {

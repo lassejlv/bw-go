@@ -206,11 +206,11 @@ func TestSsoHelpers(t *testing.T) {
 
 func TestEvaluateMasterPassword(t *testing.T) {
 	p := &MasterPasswordPolicyResponse{MinLength: 8, RequireUpper: true, RequireLower: true, RequireNumbers: true, RequireSpecial: true}
-	if EvaluateMasterPassword("Abcdef1!", p) != true {
+	if EvaluateMasterPassword(nil, "Abcdef1!", p) != true {
 		t.Error("strong password rejected")
 	}
 	for _, pw := range []string{"Abcde1!", "abcdef1!", "ABCDEF1!", "Abcdefg!", "Abcdefg1"} {
-		if EvaluateMasterPassword(pw, p) {
+		if EvaluateMasterPassword(nil, pw, p) {
 			t.Errorf("%q accepted", pw)
 		}
 	}

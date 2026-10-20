@@ -177,6 +177,7 @@ func newEnv(t *testing.T) *testEnv {
 		EncUserKey:        encUserKey.String(),
 		EncPrivateKey:     encPriv,
 		HasMasterPassword: true,
+		UserKeyID:         userKeyID(env.userKey), // a current server knows the user key id
 		Vault: state.VaultData{
 			Profile: profileJSON, Ciphers: map[string]json.RawMessage{}, Folders: map[string]json.RawMessage{},
 			Collections: map[string]json.RawMessage{},
@@ -204,6 +205,11 @@ func newEnv(t *testing.T) *testEnv {
 }
 
 func sp(s string) *string { return &s }
+
+func userKeyID(k *crypto.SymmetricKey) string {
+	id, _ := bwauth.SymmetricKeyID(k)
+	return id
+}
 
 func loginItem(id, name, password string) *vault.CipherView {
 	v := vault.NewCipherView()

@@ -281,6 +281,16 @@ func Login(a *app.App, email, password string, o LoginOptions) *cli.Response {
 			}
 		}
 
+		if acct := a.ActiveAccount(); acct != nil {
+			var masterPassword *string
+			if password != "" {
+				masterPassword = &password
+			}
+			if err := newMigrator(a).RunMigrations(acct.UserID, masterPassword); err != nil {
+				return nil, err
+			}
+		}
+
 		return loginSuccessResponse(a, o, interactive), nil
 	}()
 	if err != nil {

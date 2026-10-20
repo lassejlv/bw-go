@@ -101,6 +101,13 @@ type Account struct {
 	KeyConnectorURL        string `json:"keyConnectorUrl,omitempty"`
 	ForceSetPasswordReason int    `json:"forceSetPasswordReason,omitempty"`
 
+	// UserKeyID is the id of the user key as the server knows it (userDecryption.userKeyId of
+	// the last sync, the SDK state bridge's USER_KEY_ID).
+	UserKeyID string `json:"userKeyId,omitempty"`
+	// UserKeyIDBackfillCooldown is when the last user key id backfill failed against the server
+	// (USER_KEY_ID_BACKFILL_COOLDOWN).
+	UserKeyIDBackfillCooldown *time.Time `json:"userKeyIdBackfillCooldown,omitempty"`
+
 	LastSync *time.Time `json:"lastSync,omitempty"`
 	Vault    VaultData  `json:"vault"`
 }

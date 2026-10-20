@@ -43,6 +43,11 @@ type fakeServer struct {
 	privateKey  string
 	accountKeys string // raw AccountKeys JSON or "null"
 	requires2FA bool
+	// userKeyID is sync's userDecryption.userKeyId (the id the server knows); "" omits
+	// userDecryption like an older server.
+	userKeyID   string
+	keyIDPosts  []string
+	keyIDStatus int // status of POST /accounts/key-management/user-key-id (0: 200)
 }
 
 func newFakeServer(t *testing.T, userKey *crypto.SymmetricKey) *fakeServer {
@@ -59,7 +64,8 @@ func newFakeServer(t *testing.T, userKey *crypto.SymmetricKey) *fakeServer {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fs := &fakeServer{encUserKey: enc.String(), privateKey: encPriv, accountKeys: "null", requires2FA: true}
+	keyID, _ := bwauth.SymmetricKeyID(userKey)
+	fs := &fakeServer{encUserKey: enc.String(), privateKey: encPriv, accountKeys: "null", requires2FA: true, userKeyID: keyID}
 	fs.Server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fs.mu.Lock()
 		defer fs.mu.Unlock()
@@ -76,7 +82,7 @@ func newFakeServer(t *testing.T, userKey *crypto.SymmetricKey) *fakeServer {
 				io.WriteString(w, `{"access_token":"`+makeJWT(map[string]any{"sub": testUserID, "email": testEmail, "exp": time.Now().Add(time.Hour).Unix()})+`","token_type":"Bearer","refresh_token":"r2"}`)
 				return
 			}
-			if r.PostForm.Get("password") != hash {
+			if r.PostForm.Get("grant_type") != "client_credentials" && r.PostForm.Get("password") != hash {
 				w.WriteHeader(400)
 				io.WriteString(w, `{"error":"invalid_grant","ErrorModel":{"Message":"Username or password is incorrect. Try again.","Object":"error"}}`)
 				return
@@ -97,10 +103,28 @@ func newFakeServer(t *testing.T, userKey *crypto.SymmetricKey) *fakeServer {
 				t.Errorf("sync query = %q", r.URL.RawQuery)
 			}
 			fs.syncCalls++
+			userDecryption := ""
+			if fs.userKeyID != "" {
+				userDecryption = `"userDecryption":{"userKeyId":"` + fs.userKeyID + `"},`
+			}
 			io.WriteString(w, `{"profile":{"id":"`+testUserID+`","name":"Synced Name","email":"`+testEmail+`","key":"`+fs.encUserKey+`",
 				"privateKey":"`+fs.privateKey+`","accountKeys":`+fs.accountKeys+`,"usesKeyConnector":false,"forcePasswordReset":false,"organizations":[]},
 				"folders":[{"id":"f1","name":"2.a|b|c"}],"collections":[],"ciphers":[{"id":"c1","type":1},{"Id":"c2","type":2}],
-				"policies":[],"sends":[{"id":"s1"}],"domains":null,"object":"sync"}`)
+				"policies":[],"sends":[{"id":"s1"}],"domains":null,`+userDecryption+`"object":"sync"}`)
+		case "/api/accounts/key-management/user-key-id":
+			var body struct {
+				UserKeyID string `json:"userKeyId"`
+			}
+			if r.Method != "POST" || json.NewDecoder(r.Body).Decode(&body) != nil || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
+				t.Errorf("bad user key id request %s", r.Method)
+			}
+			fs.keyIDPosts = append(fs.keyIDPosts, body.UserKeyID)
+			if fs.keyIDStatus != 0 {
+				w.WriteHeader(fs.keyIDStatus)
+				io.WriteString(w, `{}`)
+				return
+			}
+			fs.userKeyID = body.UserKeyID
 		default:
 			t.Errorf("unexpected request %s %s", r.Method, r.URL.Path)
 			w.WriteHeader(404)

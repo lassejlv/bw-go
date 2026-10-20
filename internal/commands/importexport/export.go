@@ -6,14 +6,13 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 
-	"github.com/lassejlv/bw-go/internal/api"
 	"github.com/lassejlv/bw-go/internal/app"
 	"github.com/lassejlv/bw-go/internal/cli"
 	"github.com/lassejlv/bw-go/internal/commands/root"
+	"github.com/lassejlv/bw-go/internal/events"
 	"github.com/lassejlv/bw-go/internal/exporter"
 	"github.com/lassejlv/bw-go/internal/vault"
 )
@@ -110,58 +109,12 @@ func Export(a *app.App, opts ExportOptions) *cli.Response {
 		return cli.Error(err)
 	}
 
+	eventType := events.UserClientExportedVault
 	if opts.OrganizationID != nil {
-		exportCollectEvent(a, v, exportEventOrganizationClientExportedVault, opts.OrganizationID)
-	} else {
-		exportCollectEvent(a, v, exportEventUserClientExportedVault, nil)
+		eventType = events.OrganizationClientExportedVault
 	}
+	events.Collect(a, v, eventType, nil, true, opts.OrganizationID)
 	return cli.SaveResultToFile(exp.Data, opts.Output, exp.FileName)
-}
-
-// Event types (EventType.User_ClientExportedVault / Organization_ClientExportedVault).
-const (
-	exportEventUserClientExportedVault         = 1007
-	exportEventOrganizationClientExportedVault = 1602
-)
-
-// exportEventRequest mirrors EventRequest.
-type exportEventRequest struct {
-	Type           int     `json:"type"`
-	CipherID       *string `json:"cipherId"`
-	Date           string  `json:"date"`
-	OrganizationID *string `json:"organizationId"`
-}
-
-// exportCollectEvent mirrors eventCollectionService.collect(eventType, null, true, orgId): the
-// event is recorded only when the user belongs to an organization that uses events (and, for
-// organization events, when that organization does) and is uploaded immediately. Upload failures
-// are ignored.
-func exportCollectEvent(a *app.App, v *vault.Vault, eventType int, organizationID *string) {
-	var orgIDs []string
-	for _, o := range v.Organizations() {
-		if o.UseEvents {
-			orgIDs = append(orgIDs, o.ID)
-		}
-	}
-	if len(orgIDs) == 0 {
-		return
-	}
-	if eventType != exportEventUserClientExportedVault {
-		if organizationID == nil {
-			return
-		}
-		found := false
-		for _, id := range orgIDs {
-			if id == *organizationID {
-				found = true
-			}
-		}
-		if !found {
-			return
-		}
-	}
-	req := []exportEventRequest{{Type: eventType, Date: cli.FormatDate(time.Now()), OrganizationID: organizationID}}
-	_ = a.API.Send("POST", "/collect", req, true, nil, &api.RequestOptions{BaseURL: a.Urls().Events})
 }
 
 const exportHelp = `

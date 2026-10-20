@@ -387,7 +387,8 @@ func (s *Strategy) evaluateMasterPasswordIfRequired(resp *IdentityResponse, resu
 	if policy == nil || !policy.EnforceOnLogin {
 		return nil
 	}
-	if EvaluateMasterPassword(s.masterPassword, policy) {
+	strength := PasswordStrength(s.masterPassword, s.userEnteredEmail)
+	if EvaluateMasterPassword(strength, s.masterPassword, policy) {
 		return nil
 	}
 	if resp.TwoFactor != nil {
@@ -403,11 +404,15 @@ func (s *Strategy) evaluateMasterPasswordIfRequired(resp *IdentityResponse, resu
 var specialRe = regexp.MustCompile(`[!@#$%\^&*]`)
 var digitRe = regexp.MustCompile(`[0-9]`)
 
-// EvaluateMasterPassword mirrors PolicyService.evaluateMasterPassword. The minComplexity check
-// needs a zxcvbn score, which this port does not compute, so it is skipped.
-func EvaluateMasterPassword(password string, p *MasterPasswordPolicyResponse) bool {
+// EvaluateMasterPassword mirrors PolicyService.evaluateMasterPassword. passwordStrength is the
+// zxcvbn score (see PasswordStrength); nil (an empty password) never fails minComplexity, like
+// comparing against undefined in JavaScript.
+func EvaluateMasterPassword(passwordStrength *int, password string, p *MasterPasswordPolicyResponse) bool {
 	if p == nil {
 		return true
+	}
+	if p.MinComplexity > 0 && passwordStrength != nil && p.MinComplexity > *passwordStrength {
+		return false
 	}
 	if p.MinLength > 0 && p.MinLength > utf16Len(password) {
 		return false

@@ -59,15 +59,25 @@ State is stored in `data-go.json` inside the official CLI's data directory (or
   keys) is ported from Bitwarden's Rust SDK and checked against the SDK's test vectors.
 - **All file import formats** upstream supports (~70, including 1Password 1pux/1pif, KeePass
   `.kdbx` with `--keyfile`, LastPass, Keeper, Dashlane, Proton Pass and Bitwarden's own formats).
+- **Biometric unlock** through the Bitwarden desktop app, like upstream (used when the server
+  enables the `biometrics-sdk-ipc` flag).
+- **Organization policies** the official CLI enforces, including Send controls and the
+  master-password strength check (a zxcvbn 4.4.2 port).
+- **Event logging** for organizations that use events (viewed items, exports), with failed
+  uploads retried later.
 - **Server feature flags** read from the server's `/config`, like upstream. Override one with
   `BW_FEATURE_<flag>=true|false`.
 
 ## Differences from the official CLI
 
-- Not ported: biometric unlock, trusted-device / admin-approval SSO decryption (rejected with an
-  explanation, as upstream does), remembered two-step tokens, and the "direct" 1Password /
-  LastPass / Keeper sign-in imports.
-- `bw serve`: attachments are only accepted as uploads (never read from the server's disk),
+- Not supported, as in the official CLI: trusted-device / admin-approval SSO decryption (rejected
+  with an explanation), remembered two-step tokens, and the "direct" 1Password / LastPass /
+  Keeper sign-in imports.
+- Not run: the official CLI's account-changing migrations (raising a too-low KDF, rotating to v2
+  encryption). Use another Bitwarden client for those.
+- Biometric unlock also works without the desktop app's proxy binary by talking to its socket
+  directly (macOS/Linux).
+- `bwgo serve`: attachments are only accepted as uploads (never read from the server's disk),
   `/unlock` ignores password-file/env options, and a failed unlock keeps an unlocked vault unlocked.
 - Imports that drop policy-restricted item types keep the remaining items' folder and collection
   assignments correct (upstream can misassign them).

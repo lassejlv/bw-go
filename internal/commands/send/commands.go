@@ -361,8 +361,9 @@ func createFromInput(a *app.App, req *sendInput, opts CreateOptions) *cli.Respon
 	req.Emails = emails
 	req.AuthType = &authType
 
-	// TODO: SendControls organization policy enforcement (enforceSendPolicy) is gated behind
-	// the pm-31885-send-controls feature flag (default off) and is not ported.
+	if r := enforceSendPolicy(a, req); r != nil {
+		return r
+	}
 
 	if req.Type == nil {
 		return cli.BadRequest("Unknown Send type undefined. Valid types are: file, text")

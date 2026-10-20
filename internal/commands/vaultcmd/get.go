@@ -11,6 +11,7 @@ import (
 	"github.com/lassejlv/bw-go/internal/app"
 	"github.com/lassejlv/bw-go/internal/cli"
 	"github.com/lassejlv/bw-go/internal/crypto"
+	"github.com/lassejlv/bw-go/internal/events"
 	"github.com/lassejlv/bw-go/internal/features"
 	"github.com/lassejlv/bw-go/internal/vault"
 )
@@ -44,19 +45,19 @@ func Get(a *app.App, object, id string, opts GetOptions) *cli.Response {
 	switch strings.ToLower(object) {
 	case "item":
 		return withVault(a, func(v *vault.Vault) *cli.Response {
-			r, _ := getCipher(v, id, nil)
+			r, _ := getCipher(a, v, id, nil)
 			return r
 		})
 	case "username":
-		return withVault(a, func(v *vault.Vault) *cli.Response { return getUsername(v, id) })
+		return withVault(a, func(v *vault.Vault) *cli.Response { return getUsername(a, v, id) })
 	case "password":
-		return withVault(a, func(v *vault.Vault) *cli.Response { return getPassword(v, id) })
+		return withVault(a, func(v *vault.Vault) *cli.Response { return getPassword(a, v, id) })
 	case "uri":
-		return withVault(a, func(v *vault.Vault) *cli.Response { return getURI(v, id) })
+		return withVault(a, func(v *vault.Vault) *cli.Response { return getURI(a, v, id) })
 	case "totp":
-		return withVault(a, func(v *vault.Vault) *cli.Response { return getTotp(v, id) })
+		return withVault(a, func(v *vault.Vault) *cli.Response { return getTotp(a, v, id) })
 	case "notes":
-		return withVault(a, func(v *vault.Vault) *cli.Response { return getNotes(v, id) })
+		return withVault(a, func(v *vault.Vault) *cli.Response { return getNotes(a, v, id) })
 	case "exposed":
 		return withVault(a, func(v *vault.Vault) *cli.Response { return getExposed(a, v, id) })
 	case "attachment":
@@ -112,7 +113,7 @@ func getCipherView(v *vault.Vault, id string) (single *vault.CipherView, multi [
 }
 
 // getCipher mirrors GetCommand.getCipher. On success it also returns the cipher response.
-func getCipher(v *vault.Vault, id string, filter func(c *vault.CipherView) bool) (*cli.Response, *vault.CipherResponse) {
+func getCipher(a *app.App, v *vault.Vault, id string, filter func(c *vault.CipherView) bool) (*cli.Response, *vault.CipherResponse) {
 	single, multi, err := getCipherView(v, id)
 	if err != nil {
 		return cli.Error(err), nil
@@ -148,7 +149,8 @@ func getCipher(v *vault.Vault, id string, filter func(c *vault.CipherView) bool)
 		}
 	}
 
-	// eventCollectionService.collect(Cipher_ClientViewed, ...) is telemetry and is not ported.
+	cipherID := single.ID
+	events.Collect(a, v, events.CipherClientViewed, &cipherID, true, single.OrganizationID)
 
 	res := vault.NewCipherResponse(single)
 	return cli.Success(res), res
@@ -170,8 +172,8 @@ func respLogin(r *vault.CipherResponse) *vault.LoginResponse {
 	return r.Login
 }
 
-func getUsername(v *vault.Vault, id string) *cli.Response {
-	r, cipher := getCipher(v, id, func(c *vault.CipherView) bool {
+func getUsername(a *app.App, v *vault.Vault, id string) *cli.Response {
+	r, cipher := getCipher(a, v, id, func(c *vault.CipherView) bool {
 		return isLogin(c) && !isNullOrWhitespace(loginField(c, func(l *vault.LoginView) *string { return l.Username }))
 	})
 	if !r.Success {
@@ -187,8 +189,8 @@ func getUsername(v *vault.Vault, id string) *cli.Response {
 	return cli.Success(cli.NewString(*username))
 }
 
-func getPassword(v *vault.Vault, id string) *cli.Response {
-	r, cipher := getCipher(v, id, func(c *vault.CipherView) bool {
+func getPassword(a *app.App, v *vault.Vault, id string) *cli.Response {
+	r, cipher := getCipher(a, v, id, func(c *vault.CipherView) bool {
 		return isLogin(c) && !isNullOrWhitespace(loginField(c, func(l *vault.LoginView) *string { return l.Password }))
 	})
 	if !r.Success {
@@ -205,12 +207,12 @@ func getPassword(v *vault.Vault, id string) *cli.Response {
 	return cli.Success(cli.NewString(*password))
 }
 
-func getURI(v *vault.Vault, id string) *cli.Response {
+func getURI(a *app.App, v *vault.Vault, id string) *cli.Response {
 	firstURIUsable := func(uris []vault.LoginURIExport) bool {
 		// `uris[0].uri !== ""`: an undefined/null uri passes.
 		return len(uris) > 0 && (uris[0].URI.Val == nil || *uris[0].URI.Val != "")
 	}
-	r, cipher := getCipher(v, id, func(c *vault.CipherView) bool {
+	r, cipher := getCipher(a, v, id, func(c *vault.CipherView) bool {
 		return isLogin(c) && len(c.Login.URIs) > 0 && (c.Login.URIs[0].URI == nil || *c.Login.URIs[0].URI != "")
 	})
 	if !r.Success {
@@ -229,8 +231,8 @@ func getURI(v *vault.Vault, id string) *cli.Response {
 	return cli.Success(cli.NewString(*uris[0].URI.Val))
 }
 
-func getTotp(v *vault.Vault, id string) *cli.Response {
-	r, cipher := getCipher(v, id, func(c *vault.CipherView) bool {
+func getTotp(a *app.App, v *vault.Vault, id string) *cli.Response {
+	r, cipher := getCipher(a, v, id, func(c *vault.CipherView) bool {
 		return isLogin(c) && !isNullOrWhitespace(loginField(c, func(l *vault.LoginView) *string { return l.Totp }))
 	})
 	if !r.Success {
@@ -262,8 +264,8 @@ func getTotp(v *vault.Vault, id string) *cli.Response {
 	return cli.Success(cli.NewString(code.Code))
 }
 
-func getNotes(v *vault.Vault, id string) *cli.Response {
-	r, cipher := getCipher(v, id, func(c *vault.CipherView) bool { return !isNullOrWhitespace(c.Notes) })
+func getNotes(a *app.App, v *vault.Vault, id string) *cli.Response {
+	r, cipher := getCipher(a, v, id, func(c *vault.CipherView) bool { return !isNullOrWhitespace(c.Notes) })
 	if !r.Success {
 		return r
 	}
@@ -275,7 +277,7 @@ func getNotes(v *vault.Vault, id string) *cli.Response {
 }
 
 func getExposed(a *app.App, v *vault.Vault, id string) *cli.Response {
-	r := getPassword(v, id)
+	r := getPassword(a, v, id)
 	if !r.Success {
 		return r
 	}

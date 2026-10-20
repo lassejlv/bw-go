@@ -22,6 +22,7 @@ import (
 	"github.com/lassejlv/bw-go/internal/cli"
 	"github.com/lassejlv/bw-go/internal/commands/root"
 	"github.com/lassejlv/bw-go/internal/crypto"
+	"github.com/lassejlv/bw-go/internal/events"
 	"github.com/lassejlv/bw-go/internal/exporter"
 	"github.com/lassejlv/bw-go/internal/state"
 	"github.com/lassejlv/bw-go/internal/vault"
@@ -47,6 +48,8 @@ type exportServer struct {
 	files     map[string][]byte // attachment id -> encrypted content
 	events    []map[string]any
 	requests  []string
+	// failCollect makes the next /events/collect requests fail.
+	failCollect int
 }
 
 func (s *exportServer) handle(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +80,11 @@ func (s *exportServer) handle(w http.ResponseWriter, r *http.Request) {
 		}
 		_, _ = w.Write(b)
 	case r.Method == "POST" && r.URL.Path == "/events/collect":
+		if s.failCollect > 0 {
+			s.failCollect--
+			w.WriteHeader(503)
+			return
+		}
 		var ev []map[string]any
 		_ = json.NewDecoder(r.Body).Decode(&ev)
 		s.events = append(s.events, ev...)
@@ -438,6 +446,23 @@ func TestOrganizationExportAndEvents(t *testing.T) {
 		if _, err := time.Parse(cli.JSDateLayout, events[1]["date"].(string)); err != nil {
 			t.Fatalf("event date %v", events[1]["date"])
 		}
+	}
+}
+
+func TestExportEventRetriedAfterFailedUpload(t *testing.T) {
+	env := setupExport(t, false)
+	env.srv.failCollect = 1
+	_, _ = readSaved(t, Export(env.a, ExportOptions{Output: env.dir + "/"}))
+	if len(env.srv.events) != 0 || len(events.Pending(env.a)) != 1 {
+		t.Fatalf("failed upload: events=%v pending=%v", env.srv.events, events.Pending(env.a))
+	}
+	org := xOrgID
+	_, _ = readSaved(t, Export(env.a, ExportOptions{Output: env.dir + "/", OrganizationID: &org}))
+	if len(env.srv.events) != 2 || env.srv.events[0]["type"] != float64(1007) || env.srv.events[1]["type"] != float64(1602) {
+		t.Fatalf("retried events %v", env.srv.events)
+	}
+	if len(events.Pending(env.a)) != 0 {
+		t.Fatal("events left after retry")
 	}
 }
 

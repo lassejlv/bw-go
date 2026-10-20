@@ -16,6 +16,10 @@ and KeePass (kdbx) pieces ported from the Rust SDK at https://github.com/bitward
 | `internal/commands/root` | cobra root, global flags, help renderer (`help.go`), `root.Register(order, fn)`, `root.Examples(cmd, text)` |
 | `internal/commands/*` | one package per command group, each registering itself from `init()` |
 | `internal/vault` | vault domain: server models, decryption/encryption, keys, CLI response/export JSON shapes |
+| `internal/biometrics`, `internal/ipc` | biometric unlock through the desktop app (SDK IPC: Noise handshake over the desktop proxy/socket) |
+| `internal/migrations` | encrypted-data migrations run after login/unlock (user key id backfill) |
+| `internal/events` | event collection with retry of failed uploads (`events-go.json`) |
+| `internal/zxcvbn` | zxcvbn 4.4.2 port for the master-password strength policy |
 | `internal/importer` | all `bw import` formats (port of libs/importer + SDK kdbx); see internal/importer/README.md |
 
 ## Conventions
